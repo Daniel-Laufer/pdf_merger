@@ -34,8 +34,21 @@ def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMer
             return False
     return True
 
-def delete_merged_files():
-    pass
+def delete_merged_files(files: List[object], path_of_dir: str) -> None:
+    """
+    Deletes the files that were merged together into the newly outputed file.
+    """
+
+    for file in files:
+        try:
+            os.remove(path_of_dir + "/" + file.name)
+            print("Deleted " + file.name)
+        except:
+            print("Error deleting " + file.name)
+
+    
+
+
 
 def print_seperator() -> None:
     """
@@ -97,7 +110,7 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
             delete_choice = input("Would you like to delete the files that were merged? (Y/N)")
         
         if delete_choice.lower() == 'y':
-            delete_merged_files()
+            res = delete_merged_files()
 
         return True
 
