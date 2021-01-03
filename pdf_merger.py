@@ -10,6 +10,14 @@ DEV_MODE = True
 
 
 def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMerger) -> bool:
+    """
+    Merge the pdfs in a custom order which is specified by the user.
+    
+    For example, the string "512" will merge the fifth, first, and second files
+    together in that exact order.
+
+    Return true if the files were merged successfully, false otherwise.
+    """
     print_seperator()
     order = input("Specify an order to merge in: (for example, \"132\")")
     while(not re.search("^[1-9]{2,}$", order)):
@@ -25,12 +33,15 @@ def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMer
     return True
 
 def print_seperator() -> None:
+    """
+    Prints out a visual sperator in the output window.
+    """
     print("\n" + "*"*100 +  "\n") 
 
 
-def merge_pdfs(files: List[object], path_of_dir: str) -> bool:
+def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
     """
-    Merges the PDFS together.
+    This method chooses which type of merge to do based on the user's input.
     Return true if the files were successfully merged, false otherwise.
     """
 
@@ -93,7 +104,7 @@ if __name__ == "__main__":
                 print("Error creating file object for file " + filename)
 
     
-    merge_pdfs(pdf_files, path_of_dir)
+    choose_which_merge(pdf_files, path_of_dir)
 
         
 
