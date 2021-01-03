@@ -65,7 +65,7 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
     if(choice.strip() in ['1', '(1)']):
         success = merge_custom_order(files, path_of_dir, merger)
     elif(choice.strip() in ['2', '(2)']):
-        success = same_order_as_listed(files, path_of_dir, merger)
+        success = merge_same_order_as_listed(files, path_of_dir, merger)
     elif(choice.strip() in ['3', '(3)']):
         success = merge_by_date_of_last_creation(files, path_of_dir, merger, True)
     elif(choice.strip() in ['4', '(4)']):
@@ -107,6 +107,20 @@ def merge_by_date_of_last_modification(files: List[object], path_of_dir: str, me
     else:
          files.sort(key=lambda x: os.path.getmtime(x.name), reverse=True)
 
+
+    for file in files:
+        try:
+            merger.append(file)
+        except:
+            return False
+    return True
+
+
+
+def merge_same_order_as_listed(files: List[object], path_of_dir: str, merger: PdfFileMerger) -> bool:
+    """
+    Merge the files in the order that they are seen in the directory. 
+    """
 
     for file in files:
         try:
