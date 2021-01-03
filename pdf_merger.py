@@ -34,6 +34,9 @@ def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMer
             return False
     return True
 
+def delete_merged_files():
+    pass
+
 def print_seperator() -> None:
     """
     Prints out a visual sperator in the output window.
@@ -53,8 +56,9 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
         \n\t(3)All PDFS from Oldest to newest modifications
         \n\t(4)All PDFs from Newest to Oldest modifications
         \n\t(5)All PDFS from Oldest to newest creation dates
-        \n\t(6)All PDFs from Newest to Oldest creation dates\n 
-        \n\t(7)All PDFs Alphabetically
+        \n\t(6)All PDFs from Newest to Oldest creation dates
+        \n\t(7)All PDFs alphabetical order
+        \n\t(8)All PDFs in reverse alphabetical order
                
         """)
     
@@ -75,17 +79,26 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
     elif(choice.strip() in ['6', '(6)']):
         success = merge_by_date_of_last_creation(files, path_of_dir, merger, False)
     elif(choice.strip() in ['7', '(7)']):
-        success = merge_alphabetically(files, path_of_dir, merger)
+        success = merge_alphabetically(files, path_of_dir, merger, True)
+    elif(choice.strip() in ['8', '(8)']):
+        success = merge_alphabetically(files, path_of_dir, merger, False)
     
-
-            
 
     if success:
         print_seperator()
         name = input("Success! Please choose a name for your new file: ")
         if not name.endswith(".pdf"):
             name += ".pdf"
+        print(path_of_dir + "/" + name)
         merger.write(path_of_dir + "/" + name)
+
+        delete_choice = input("Would you like to delete the files that were merged? (Y/N)")
+        while delete_choice.lower() not in ['y', 'n']:
+            delete_choice = input("Would you like to delete the files that were merged? (Y/N)")
+        
+        if delete_choice.lower() == 'y':
+            delete_merged_files()
+
         return True
 
     print_seperator()
@@ -93,9 +106,28 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
     return False
 
 
+def merge_alphabetically(files: List[object], path_of_dir: str, merger: PdfFileMerger, low_to_high:bool) -> bool:
+    """
+    Merge the files located at path_of_dir in alphabetic order.
+
+    """
+    if low_to_high:
+        files.sort(key=lambda x: x.name)
+    else:
+         files.sort(key=lambda x: x.name, reverse=True)
 
 
-def merge_by_date_of_last_modification(files: List[object], path_of_dir: str, merger: PdfFileMerger, old_to_new: True) -> bool:
+    for file in files:
+        try:
+            merger.append(file)
+        except:
+            return False
+    return True
+
+
+
+
+def merge_by_date_of_last_modification(files: List[object], path_of_dir: str, merger: PdfFileMerger, old_to_new: bool) -> bool:
     """
     Merge the files located at path_of_dir in the order of the file that was more recently 
     modified to the file that was modified first if old_to_new is False, if old_to_new is True 
@@ -103,9 +135,9 @@ def merge_by_date_of_last_modification(files: List[object], path_of_dir: str, me
 
     """
     if(old_to_new):
-        files.sort(key=lambda x: os.path.getmtime(x.name))
+        files.sort(key=lambda x: os.stat(x.name).st_mtime)
     else:
-         files.sort(key=lambda x: os.path.getmtime(x.name), reverse=True)
+         files.sort(key=lambda x: os.stat(x.name).st_mtime, reverse=True)
 
 
     for file in files:
@@ -130,17 +162,18 @@ def merge_same_order_as_listed(files: List[object], path_of_dir: str, merger: Pd
     return True
 
 
-def merge_by_date_of_last_creation(files: List[object], path_of_dir: str, merger: PdfFileMerger, old_to_new: True) -> bool:
+def merge_by_date_of_last_creation(files: List[object], path_of_dir: str, merger: PdfFileMerger, old_to_new: bool) -> bool:
     """
     Merge the files located at path_of_dir in the order of oldest to newest in terms of their creation dates if old_to_new is False, if 
     old_to_new is True then that aforementioned order is reversed.
 
     """
-    if(old_to_new):
-        files.sort(key=lambda x: os.path.getctime(x.name))
-    else:
-         files.sort(key=lambda x: os.path.getctime(x.name), reverse=True)
 
+    
+    if(old_to_new):
+        files.sort(key=lambda x: os.stat(x.name).st_birthtime)
+    else:
+         files.sort(key=lambda x: os.stat(x.name).st_birthtime, reverse=True)
 
 
     for file in files:
@@ -149,19 +182,6 @@ def merge_by_date_of_last_creation(files: List[object], path_of_dir: str, merger
         except:
             return False
     return True
-
-
-    
-
-    
-    
-
-
-
-
-
-
- 
 
 
 
@@ -186,7 +206,7 @@ if __name__ == "__main__":
                 fname = pathlib.Path(complete_file_path)
                 last_modified = datetime.datetime.fromtimestamp(fname.stat().st_mtime)
                 creation_date = datetime.datetime.fromtimestamp(fname.stat().st_ctime)
-                print("\t" + str(pdf_counter) + '. ' + filename  + "Created at " + str(creation_date) + ". Last modified at " + str(last_modified))
+                print("\t" + str(pdf_counter) + '. ' + filename  + ". Created at " + str(creation_date) + ". Last modified at " + str(last_modified))
                 pdf_files.append(open(complete_file_path, "rb"))
                 pdf_counter += 1
             except:
@@ -194,8 +214,6 @@ if __name__ == "__main__":
 
     
 
-    # for file in pdf_files:
-    #     print(os.path.getctime(file.name))
     choose_which_merge(pdf_files, path_of_dir)
 
         
