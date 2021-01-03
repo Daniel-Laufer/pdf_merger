@@ -5,8 +5,12 @@ from typing import *
 import re
 import pathlib
 import datetime
+import warnings
 
 
+
+
+warnings.filterwarnings("ignore")
 
 DEV_PDFS = "./pdfs"
 DEV_MODE = True
@@ -34,16 +38,18 @@ def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMer
             return False
     return True
 
-def delete_merged_files(files: List[object], path_of_dir: str) -> None:
+def delete_merged_files(files: List[object], path_of_dir: str, newly_created_file_name: str) -> None:
     """
-    Deletes the files that were merged together into the newly outputed file.
+    Deletes the files tha"t were merged together into the newly outputed file.
     """
 
     for file in files:
         try:
-            os.remove(path_of_dir + "/" + file.name)
-            print("Deleted " + file.name)
-        except:
+            if file.name != newly_created_file_name:
+                os.remove(file.name)
+                print("Deleted " + file.name)
+        except Exception as e:
+            print(e)
             print("Error deleting " + file.name)
 
     
@@ -110,7 +116,7 @@ def choose_which_merge(files: List[object], path_of_dir: str) -> bool:
             delete_choice = input("Would you like to delete the files that were merged? (Y/N)")
         
         if delete_choice.lower() == 'y':
-            res = delete_merged_files()
+            delete_merged_files(files, path_of_dir, path_of_dir + "/" + name)
 
         return True
 
@@ -133,7 +139,8 @@ def merge_alphabetically(files: List[object], path_of_dir: str, merger: PdfFileM
     for file in files:
         try:
             merger.append(file)
-        except:
+        except Exception as e:
+            print(e)
             return False
     return True
 
