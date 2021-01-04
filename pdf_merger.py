@@ -13,7 +13,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 DEV_PDFS = "./pdfs"
-DEV_MODE = True
+DEV_MODE = False
 
 
 def merge_custom_order(files: List[object], path_of_dir: str, merger: PdfFileMerger) -> bool:
@@ -47,14 +47,12 @@ def delete_merged_files(files: List[object], path_of_dir: str, newly_created_fil
         try:
             if file.name != newly_created_file_name:
                 os.remove(file.name)
-                print("Deleted " + file.name)
         except Exception as e:
             print(e)
             print("Error deleting " + file.name)
+    print("Successfully deleted files.")
 
     
-
-
 
 def print_seperator() -> None:
     """
@@ -207,7 +205,7 @@ def merge_by_date_of_last_creation(files: List[object], path_of_dir: str, merger
 
 if __name__ == "__main__":
     if(not DEV_MODE):
-        path_of_dir = input("Input the path of the directory which contains the pdfs you would like to use: ")
+        path_of_dir = input("Input the path of the directory which contains the pdfs you would like to use (ex. ~/Desktop/MyPDFs): ")
     else:
         path_of_dir = DEV_PDFS
         home = expanduser("~")
@@ -231,8 +229,6 @@ if __name__ == "__main__":
                 pdf_counter += 1
             except:
                 print("Error creating file object for file " + filename)
-
-    
 
     choose_which_merge(pdf_files, path_of_dir)
 
